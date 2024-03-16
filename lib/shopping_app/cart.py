@@ -1,7 +1,9 @@
-class Cart:
+from ownable import Ownable
+class Cart (Ownable):
     from item_manager import show_items
 
     def __init__(self, owner):
+        super().__init__()
         self.set_owner(owner)
         self.items = []
 
@@ -17,9 +19,19 @@ class Cart:
             price_list.append(item.price)
         return sum(price_list)
 
+    def clear_cart(self):
+        self.items = []
+
     def check_out(self):
-        if self.owner.wallet.balance < self.total_amount():
-            pass    # check_outメソッドをコーディングする際はpassは削除してください。
+        if self.owner.wallet.balance >= self.total_amount():
+            self.owner.wallet.balance -= self.total_amount()
+            self.owner.cart.owner.wallet.deposit(self.total_amount())
+            for item in self.items:
+                item.set_owner(self.owner)
+            self.clear_cart()
+        else:
+            print("no hay dinero suficiente")
+        # check_outメソッドをコーディングする際はpassは削除してください。
         # 要件
         #   - カートの中身（Cart#items）のすべてのアイテムの購入金額が、カートのオーナーのウォレットからアイテムのオーナーのウォレットに移されること。
         #   - カートの中身（Cart#items）のすべてのアイテムのオーナー権限が、カートのオーナーに移されること。
